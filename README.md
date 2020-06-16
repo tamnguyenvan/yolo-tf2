@@ -1,9 +1,10 @@
 # YOLOv3 implementation in Tensorflow 2
 An elegant Yolov3 implementation in Tensorflow 2.0.
+![prediction](./assets/street_out.jpg)
 ## Installation
 Clone the repo to your local
 ```
-git clone 
+git clone https://github.com/tamnguyenvan/yolo-tf2
 ```
 Install the requirements
 ```
