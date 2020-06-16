@@ -16,6 +16,8 @@ flags.DEFINE_string('image_path', '', 'Path to input image.')
 flags.DEFINE_integer('image_size', 416, 'The image size.')
 flags.DEFINE_integer('num_classes', 80, 'Number of classes.')
 flags.DEFINE_string('class_file', './data/coco.names', 'Class name file.')
+flags.DEFINE_boolean('show', True, 'Show image before saving')
+flags.DEFINE_string('output', 'predictions.jpg', 'Output file')
 
 
 def main(_argv):
@@ -39,11 +41,6 @@ def main(_argv):
 
     # Predict in eager mode
     boxes, scores, classes, nums = model(images)
-    for i in range(nums[0]):
-        class_name = coco_map[int(classes[0][i])]
-        bbox = np.array(boxes[0][i])
-        score = np.array(scores[0][i])
-        print(class_name, bbox, score)
 
     nums = int(nums[0])
     boxes = np.array(boxes[0])[:nums]
@@ -52,8 +49,10 @@ def main(_argv):
 
     image = cv2.cvtColor(image_raw.numpy(), cv2.COLOR_RGB2BGR)
     image = draw_bboxes(image, boxes, scores, classes)
-    cv2.imshow('img', image)
-    cv2.waitKey(0)
+    if FLAGS.show:
+        cv2.imshow('img', image)
+        cv2.waitKey(0)
+    cv2.imwrite(FLAGS.output, image)
 
 
 if __name__ == '__main__':
