@@ -32,7 +32,7 @@ class DataLoader:
                      num_parallel_calls=tf.data.experimental.AUTOTUNE) \
                 .batch(self.batch_size) \
                 .map(lambda x, y: (
-                    transform_images(x, self.image_size),
+                    transform_images(x),
                     transform_targets(y, self.anchors,
                                       self.anchor_masks,
                                       self.image_size)),
@@ -44,7 +44,7 @@ class DataLoader:
                     num_parallel_calls=tf.data.experimental.AUTOTUNE) \
                 .batch(self.batch_size) \
                 .map(lambda x, y: (
-                    transform_images(x, self.image_size),
+                    transform_images(x),
                     transform_targets(y, self.anchors,
                                       self.anchor_masks,
                                       self.image_size)),
@@ -67,6 +67,7 @@ class DataLoader:
         parsed_example = tf.io.parse_single_example(example, example_fmt)
         image = tf.image.decode_jpeg(parsed_example['image/encoded'],
                                      channels=self.channels)
+        image = tf.image.resize(image, (self.image_size, self.image_size))
         # height = parsed_example['image/height']
         # width = parsed_example['image/width']
         labels = tf.cast(
@@ -85,8 +86,7 @@ class DataLoader:
         return image, y_train
 
 
-def transform_images(image, size):
-    image = tf.image.resize(image, (size, size))
+def transform_images(image):
     image /= 255.
     return image
 

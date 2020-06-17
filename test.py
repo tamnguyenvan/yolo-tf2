@@ -16,7 +16,7 @@ flags.DEFINE_string('image_path', '', 'Path to input image.')
 flags.DEFINE_integer('image_size', 416, 'The image size.')
 flags.DEFINE_integer('num_classes', 80, 'Number of classes.')
 flags.DEFINE_string('class_file', './data/coco.names', 'Class name file.')
-flags.DEFINE_boolean('show', True, 'Show image before saving')
+flags.DEFINE_boolean('show', False, 'Show image before saving')
 flags.DEFINE_string('output', 'predictions.jpg', 'Output file')
 
 
