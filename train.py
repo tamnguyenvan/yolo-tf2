@@ -1,8 +1,10 @@
 """Train YOLOv3 using tensorflow 2 on COCO dataset."""
 import os
+import logging
 
 from absl import app, flags
 from absl.flags import FLAGS
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import optimizers
 
@@ -19,6 +21,7 @@ flags.DEFINE_integer('epochs', 20, 'Number of epochs.')
 flags.DEFINE_float('lr', 1e-3, 'Learning rate.')
 flags.DEFINE_integer('image_size', 416, 'The image size.')
 flags.DEFINE_integer('num_classes', 80, 'Number of classes.')
+flags.DEFINE_enum('mode', 'fit', ['fit', 'eager'], 'Training mode')
 
 
 def main(_argv):
@@ -45,6 +48,30 @@ def main(_argv):
             for mask in yolo_anchor_masks]
     optimizer = optimizers.Adam(lr=FLAGS.lr)
 
+    if FLAGS.mode == 'eager':
+        avg_loss = tf.keras.metrics.Mean('loss', dtype=tf.float32)
+        avg_val_loss = tf.keras.metrics.Mean('val_loss', dtype=tf.float32)
+
+        for epoch in range(FLAGS.epochs):
+            for batch, (images, labels) in enumerate(train_dataset):
+                with tf.GradientTape() as tape:
+                    outputs = model(images, training=True)
+                    pred_loss = []
+                    for output, label, loss_fn in zip(outputs, labels, loss):
+                        pred_loss.append(loss_fn(label, output))
+                    total_loss = tf.reduce_sum(pred_loss)
+
+                grads = tape.gradient(total_loss, model.trainable_variables)
+                optimizer.apply_gradients(
+                    zip(grads, model.trainable_variables))
+                logging.info('Epoch #{:04d} batch #{:05d}'
+                             ' total loss {:.4f} {}'.format(
+                                 epoch+1, batch, total_loss.numpy(),
+                                 list(map(lambda x: np.sum(x.numpy()), pred_loss))))
+                avg_loss.update_state(total_loss)
+
+            avg_loss.reset_states()
+
     # Compile the model
     model.compile(optimizer=optimizer, loss=loss)
 
@@ -52,7 +79,6 @@ def main(_argv):
     model.fit(train_dataset,
               batch_size=FLAGS.batch_size,
               # steps_per_epoch=num_train//FLAGS.batch_size,
-              steps_per_epoch=1,
               epochs=FLAGS.epochs,
               validation_data=val_dataset,
               validation_steps=1)

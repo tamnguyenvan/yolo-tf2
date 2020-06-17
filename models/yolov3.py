@@ -218,6 +218,8 @@ def yolo_loss(anchors, classes=80, ignore_thresh=0.5):
     def _yolo_loss(y_true, y_pred):
         # 1. transform all pred outputs
         # y_pred: (batch_size, grid, grid, anchors, (x, y, w, h, obj, ...cls))
+        # import pdb
+        # pdb.set_trace()
         pred_box, pred_obj, pred_class, pred_xywh = yolo_boxes(
             y_pred, anchors, classes)
         pred_xy = pred_xywh[..., 0:2]
@@ -262,8 +264,13 @@ def yolo_loss(anchors, classes=80, ignore_thresh=0.5):
         obj_loss = obj_mask * obj_loss + \
             (1 - obj_mask) * ignore_mask * obj_loss
         # TODO: use binary_crossentropy instead
-        class_loss = obj_mask * sparse_categorical_crossentropy(
-            true_class_idx, pred_class)
+        # import pdb
+        # pdb.set_trace()
+        true_class_idx = tf.squeeze(true_class_idx)
+        true_class_idx = tf.cast(true_class_idx, dtype=tf.int32)
+        true_class = tf.one_hot(true_class_idx, classes, axis=-1)
+        class_loss = obj_mask * binary_crossentropy(
+            true_class, pred_class)
 
         # 6. sum over (batch, gridx, gridy, anchors) => (batch, 1)
         xy_loss = tf.reduce_sum(xy_loss, axis=(1, 2, 3))
@@ -271,5 +278,7 @@ def yolo_loss(anchors, classes=80, ignore_thresh=0.5):
         obj_loss = tf.reduce_sum(obj_loss, axis=(1, 2, 3))
         class_loss = tf.reduce_sum(class_loss, axis=(1, 2, 3))
 
+        # import pdb
+        # pdb.set_trace()
         return xy_loss + wh_loss + obj_loss + class_loss
     return _yolo_loss
