@@ -23,7 +23,7 @@ python test.py --image_path /path/to/image --model_path ./checkpoints/yolov3.tf
 ```
 
 ## Training
-We also provide a pipeline for training the model on COCO 2017 dataset. But it's still **not coveraged** yet.
+We also provide a pipeline for training the model on COCO 2017 dataset.
 Download COCO 2017 dataset, extract and put them into `data/raw` directory.
 ```
 wget http://images.cocodataset.org/zips/train2017.zip
