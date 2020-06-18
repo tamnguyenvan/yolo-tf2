@@ -7,6 +7,10 @@ from absl.flags import FLAGS
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import optimizers
+from tensorflow.keras.callbacks import (
+    ReduceLROnPlateau, TensorBoard,
+    ModelCheckpoint, EarlyStopping
+)
 
 from dataset import DataLoader, yolo_anchors, yolo_anchor_masks
 from models import Yolov3, yolo_loss
@@ -73,15 +77,25 @@ def main(_argv):
             avg_loss.reset_states()
 
     # Compile the model
+    callbacks = [
+        ReduceLROnPlateau(verbose=1),
+        EarlyStopping(patience=3, verbose=1),
+        ModelCheckpoint('./checkpoints/yolov3_train_{epoch}.tf',
+                        verbose=1, save_weights_only=True),
+        TensorBoard(log_dir='./logs')
+    ]
     model.compile(optimizer=optimizer, loss=loss)
 
     # Training
+    num_train = 117266
+    num_val = 4952
     model.fit(train_dataset,
               batch_size=FLAGS.batch_size,
-              # steps_per_epoch=num_train//FLAGS.batch_size,
+              steps_per_epoch=num_train//FLAGS.batch_size,
               epochs=FLAGS.epochs,
               validation_data=val_dataset,
-              validation_steps=1)
+              validation_steps=num_val//FLAGS.batch_size,
+              callbacks=callbacks)
 
 
 if __name__ == '__main__':
