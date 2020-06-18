@@ -2,6 +2,8 @@
 An elegant Yolov3 implementation in Tensorflow 2.0.
 
 ![prediction](./assets/street_out.jpg)
+## What you need to know
+This repo is heavily borrowed from awesome repo [zzh8829](https://github.com/zzh8829/yolov3-tf2). I just want to make it work on COCO 2017 dataset.
 ## Installation
 Clone the repo to your local
 ```
@@ -47,4 +49,4 @@ python train.py \
 ```
 
 ## References
-This repo is heavily inspired by [zzh8829](https://github.com/zzh8829/yolov3-tf2).
+This repo is heavily inspired by [zzh8829](https://github.com/zzh8829/yolov3-tf2). Don't forget to give him a star.
