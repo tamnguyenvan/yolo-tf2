@@ -33,7 +33,7 @@ wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip
 Create tfrecord files for training pipeline
 ```
 python tools/create_tfrecords.py --data_dir ../data/raw --split train --output_file coco2017_train.tfrecord
-python tools/create_tfrecords.py --data_dir ../data/raw --split train --output_file coco2017_val.tfrecord
+python tools/create_tfrecords.py --data_dir ../data/raw --split val --output_file coco2017_val.tfrecord
 ```
 The 2 tfrecord files should be generated in `data/processed` directory.
 If everything is done, let's train the model
