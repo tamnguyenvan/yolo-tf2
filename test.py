@@ -32,7 +32,9 @@ def main(_argv):
     image_size = FLAGS.image_size
     image_raw = tf.image.decode_jpeg(
         open(FLAGS.image_path, 'rb').read(), channels=3)
-    image = transform_images(image_raw, image_size)
+    image = tf.cast(image_raw, tf.float32)
+    image = transform_images(image)
+    image = tf.image.resize(image, (image_size, image_size))
     images = tf.expand_dims(image, axis=0)
 
     # Load the model
